@@ -1,0 +1,88 @@
+<html>
+
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label>Name:</label>
+        <input id="username" type="text" name="username" required>
+        <label>Email:</label>
+        <input id="email" type="email" name="emailId" required>
+        <label>Mobile No:</label>
+        <input id="phonenumber" type="number" name="phoneNo" required>
+        <button>Submit</button>
+    </form>
+    <ul id="listOfUser"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+
+    <script>
+        function saveToLocalStorage(event) {
+            event.preventDefault();
+            const name = event.target.username.value;
+            const email = event.target.emailId.value;
+            const mobile = event.target.phoneNo.value;
+
+            const newObj = {
+                name ,
+                email ,
+                mobile 
+            }
+            axios.post("https://crudcrud.com/api/f7aa8e78ae7a44b494b3da29f4d8c266/appointment-data" , newObj)
+            .then( (res) =>{
+                console.log(res);
+            })
+            .catch((err)=>{
+                console.log(err);
+            })
+            showUser(newObj)
+        }
+        window.addEventListener("DOMContentLoader" , ()=>{
+            axios.get("https://crudcrud.com/api/f7aa8e78ae7a44b494b3da29f4d8c266/appointment-data")
+            .then((res)=>{
+                for(var i=0;i<res.data.length;i++){
+                    showUser(res.data[i])
+                }
+                console.log(res)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+        })
+        function showUser(user) {
+            const parentNode = document.getElementById("listOfUser");
+            const childHTML = `<li> ${user.name} - ${user._id} 
+                    <button onclick=deleteUser('${user._id}')>Delete</button>
+                    <button onclick=editUser('${user._id}','${user.name}')>Edit</button>
+                    </li>`;
+            parentNode.innerHTML = parentNode.innerHTML + childHTML;
+        }
+        function editUser(userId, name) {
+            axios.put(`https://crudcrud.com/api/f7aa8e78ae7a44b494b3da29f4d8c266/appointment-data/${userId}`)
+            .then((res)=>{
+                document.getElementById('email').value = '';
+            document.getElementById('username').value = '';
+            deleteUser(userId);
+            })
+            .catch((err)=>{
+                console.log(err);
+            })
+        }
+
+        function deleteUser(userId) {
+            axios.delete(`https://crudcrud.com/api/f7aa8e78ae7a44b494b3da29f4d8c266/appointment-data/${userId}`)
+            .then((res)=>{
+                removeItemFromScreen(userId);
+            })
+            .catch((err)=>{
+                console.log(err);
+            })
+            
+        }
+
+        function removeItemFromScreen(email) {
+            const parentNode = document.getElementById('listOfitems');
+            const elem = document.getElementById(email)
+            parentNode.removeChild(elem);
+        }
+    </script>
+</body>
+
+</html>
